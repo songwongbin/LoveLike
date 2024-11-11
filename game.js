@@ -1,27 +1,11 @@
 import chalk from "chalk";
 import readlineSync from "readline-sync";
+/* 플레이어, 몬스터, 함수 모듈 분리 */
+import { Player } from "./player.js";
+import { Classmate } from "./classmates.js";
+import * as funcs from "./func_for_stages.js";
 
-class Player {
-  constructor() {
-    this.hp = 100;
-  }
-
-  attack() {
-    // 플레이어의 공격
-  }
-}
-
-class Monster {
-  constructor() {
-    this.hp = 100;
-  }
-
-  attack() {
-    // 몬스터의 공격
-  }
-}
-
-function displayStatus(stage, player, monster) {
+function displayStatus(stage, player, classmate) {
   console.log(chalk.magentaBright(`\n=== Current Status ===`));
   console.log(
     chalk.cyanBright(`| Stage: ${stage} `) +
@@ -31,12 +15,12 @@ function displayStatus(stage, player, monster) {
   console.log(chalk.magentaBright(`=====================\n`));
 }
 
-const battle = async (stage, player, monster) => {
+const battle = async (stage, player, classmate) => {
   let logs = [];
 
   while (player.hp > 0) {
     console.clear();
-    displayStatus(stage, player, monster);
+    displayStatus(stage, player, classmate);
 
     logs.forEach((log) => console.log(log));
 
@@ -50,12 +34,12 @@ const battle = async (stage, player, monster) => {
 
 export async function startGame() {
   console.clear();
-  const player = new Player();
+  const me = new Player();
   let stage = 1;
 
-  while (stage <= 10) {
-    const monster = new Monster(stage);
-    await battle(stage, player, monster);
+  while (stage <= 5) {
+    const classmate = new Classmate(stage);
+    await battle(stage, me, classmate);
 
     // 스테이지 클리어 및 게임 종료 조건
 
