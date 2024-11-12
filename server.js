@@ -1,7 +1,8 @@
 import chalk from "chalk";
 import figlet from "figlet";
 import readlineSync from "readline-sync";
-import { startGame } from "./game.js";
+import { startGame, eventScene } from "./game.js";
+import * as texts from "./texts.js";
 
 // 로비 화면을 출력하는 함수
 function displayLobby() {
@@ -9,9 +10,13 @@ function displayLobby() {
 
   // 타이틀 텍스트
   console.log(
-    chalk.cyan(
-      figlet.textSync("RL- Javascript", {
-        font: "Standard",
+    chalk.rgb(
+      255,
+      105,
+      180,
+    )(
+      figlet.textSync(" Love Like", {
+        font: "Slant",
         horizontalLayout: "default",
         verticalLayout: "default",
       }),
@@ -23,7 +28,7 @@ function displayLobby() {
   console.log(line);
 
   // 게임 이름
-  console.log(chalk.yellowBright.bold("CLI 게임에 오신것을 환영합니다!"));
+  console.log(chalk.whiteBright.bold("취미라곤 게임 뿐인 내가 도내 최강 인기인?!"));
 
   // 설명 텍스트
   console.log(chalk.green("옵션을 선택해주세요."));
@@ -50,7 +55,7 @@ function handleUserInput() {
     case "1":
       console.log(chalk.green("게임을 시작합니다."));
       // 여기에서 새로운 게임 시작 로직을 구현
-      startGame();
+      eventScene(texts.openingTexts);
       break;
     case "2":
       console.log(chalk.yellow("구현 준비중입니다.. 게임을 시작하세요"));
