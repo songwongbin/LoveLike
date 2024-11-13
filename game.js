@@ -1,5 +1,6 @@
 import chalk from "chalk";
 import readlineSync from "readline-sync";
+import { start } from "./server.js";
 import { Player } from "./player.js";
 import { Classmate } from "./classmates.js";
 import * as images from "./ASCII.js";
@@ -56,6 +57,11 @@ function displaySchool(stage, player, classmate, countBreakTime) {
   console.log(chalk.magentaBright(`=========================================\n`));
 }
 
+// 이벤트씬 그냥 패스하기 위한 깡통 함수
+export const funcEnd = () => {
+  return;
+};
+
 /* 게임 시작 */
 export async function startGame() {
   console.clear();
@@ -64,44 +70,54 @@ export async function startGame() {
   while (stage <= 5) {
     const classmate = new Classmate(stage);
     await myRoomScene(stage, me, classmate);
-    await SchoolScene(stage, me, classmate);
+    await eventScene(texts.goSchoolTexts, 500, funcEnd, funcEnd); // (추가할 것) 장면 전환 이벤트 텍스트
+    await schoolScene(stage, me, classmate);
+    await eventScene(texts.goHomeTexts, 500, funcEnd, start); // (추가할 것) 장면 전환 이벤트 텍스트
     // (추가할 것)스테이지 클리어 및 게임 종료 조건
     stage++;
   }
 }
 
-/* (수정 필요) 이벤트 씬 */
-export const eventScene = function (texts) {
+/* 게임 오버 */
+export async function gameOver() {}
+
+/* 스테이지 클리어 */
+
+/* 반복 간 시간차를 두기 위한 함수 */
+const wait = (ms) => {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+};
+
+/* 이벤트 씬 */
+export const eventScene = async function (texts, printDelay, next, end) {
   const eventText = [...texts];
   console.clear();
-  let textIdx = 0;
-  // setInterval로 텍스트를 하나씩 출력
-  const textTimer = setInterval(function () {
-    console.clear();
-    console.log(chalk.green(`=====================\n`));
+  let textIdx = 1;
+  console.log(chalk.green(`============${eventText[0]}============\n`));
+  // for문으로 텍스트를 하나씩 출력
+  for (; textIdx < eventText.length; textIdx++) {
     console.log(eventText[textIdx]);
-    console.log(chalk.green(`\n=====================`));
-    textIdx++;
-    // 모든 텍스트가 출력된 후 인터벌 종료 및 NextOrEnd 호출
-    if (textIdx === eventText.length) {
-      clearInterval(textTimer);
-      console.log(chalk.green(`1. 계속 2. 게임종료 `));
-      NextOrEnd(); // 모든 텍스트가 출력된 후에 호출
+    // 마지막 텍스트 나오면 구분선도 같이 출력
+    if (textIdx === eventText.length - 1) {
+      console.log(chalk.green(`\n============${eventText[0]}============`));
     }
-  }, 700);
-  const NextOrEnd = function () {
-    const next_or_end = readlineSync.question("입력 : ");
-    switch (next_or_end) {
-      case "1":
-        startGame();
+    await wait(printDelay); // 강제로 시간차를 주는 함수
+  }
+  // 분기 선택 함수
+  const NextOrEnd = (next, end) => {
+    while (true) {
+      const next_or_end = readlineSync.question(`\n입력 : `);
+      if (next_or_end === "1") {
+        next();
         break;
-      case "2":
-        process.exit(0); // 게임 종료
-      default:
-        console.log(chalk.red("1,2만 입력 가능합니다"));
-        NextOrEnd();
+      } else if (next_or_end === "2") {
+        end();
+        break;
+      }
+      console.log(chalk.red("1,2만 입력 가능합니다"));
     }
   };
+  NextOrEnd(next, end);
 };
 
 /* 내 방 장면 */
@@ -137,24 +153,34 @@ const myRoomScene = async (stage, player, classmate) => {
     };
     await doTraining();
     trainingCount--;
-    // (추가할 것) 도중에 기분이 0이 될 경우 씬 강제 전환
-    if (player.mood === 0) {
-      console.log(chalk.redBright(`\n기분이 안 좋아졌다... 잠이나 자버리자...`));
+    // 도중에 기분이 0 이하가 될 경우 씬 강제 전환
+    if (player.mood <= 0) {
+      await eventScene(texts.moodZeroTexts, 500, funcEnd, funcEnd); // 기분 스텟이 0이 되어 자버린다는 텍스트
+      player.mood = 1; // 기분을 1로 회복시켜줌
       break;
     }
   }
-  // (추가할 것) 장면 전환 이벤트 씬
-  eventScene(texts.openingTexts);
 };
 
 /* 교실 장면 */
-const SchoolScene = async (stage, player, classmate) => {
+const schoolScene = async (stage, player, classmate) => {
   let countBreakTime = 1; // 쉬는 시간은 여섯 번
   let cmdMessage = ""; // 내 행동에 따른 친구의 반응 출력할 문자열
+  const confiUp = () => {
+    player.confidence += 10; // 점심 이벤트를 위한 자신감 회복 함수
+  };
+  const confiDown = () => {
+    player.confidence -= 10; // 점심 이벤트를 위한 자신감 감소 함수
+  };
   while (countBreakTime < 7) {
     // (추가할 것) 점심시간 이벤트
-    if (countBreakTime === 4) eventScene(texts.openingTexts);
-
+    if (countBreakTime === 4) {
+      await eventScene(texts.lunchEventTexts, 500, confiUp, confiDown);
+      // 점심시간 이벤트로 자신감이 0보다 작아지면 게임오버
+      if (player.confidence <= 0) {
+        await eventScene(texts.gameOverTexts, 500, gameOver, gameOver);
+      }
+    }
     displaySchool(stage, player, classmate, countBreakTime);
     console.log(
       chalk.green(
@@ -184,12 +210,14 @@ const SchoolScene = async (stage, player, classmate) => {
         case "3":
           player.confidence -= 20;
           classmate.confess();
-          // (추가할 것) 연인 됐다는 이벤트 호출 후 스테이지 스킵
           if (classmate.isDate) {
             player.confidence = 100;
             cmdMessage = `\n고백에 긍정적인 반응\n`;
           } else {
             cmdMessage = `\n고백에 부정적인 반응\n`;
+            if (classmate.isFailConfess) {
+              await eventScene(texts.gameOverTexts, 500, gameOver, gameOver); // 고백 실패시 20% 확률로 게임 오버
+            }
           }
           break;
         case "4":
@@ -206,11 +234,22 @@ const SchoolScene = async (stage, player, classmate) => {
     };
     await playWithClassmate();
     countBreakTime++;
-    // (추가할 것) 도중에 자신감이 0이 될 경우 게임 오버
-    if (player.confidence === 0) {
-      console.log(chalk.redBright(`\n자신감이 바닥을 쳤다!!`));
-      console.log(chalk.redBright(`\n난 안 될 거야......`));
+    // (추가할 것) 고백 성공 시 연인 됐다는 이벤트 호출 후 스테이지 스킵
+    if (classmate.isDate) {
+      await eventScene(texts.dateTexts, 500, funcEnd, start);
       break;
     }
+    // (추가할 것) 도중에 자신감 또는 친밀도가 0 이하가 될 경우 게임 오버
+    if (player.confidence <= 0 || classmate.closeness <= 0) {
+      await eventScene(texts.gameOverTexts, 500, gameOver, gameOver);
+    }
+  }
+  // 교실 씬이 끝났는데 친밀도가 80 미만이면 게임 오버
+  if (classmate.closeness < 80) {
+    await eventScene(texts.gameOverTexts, 500, gameOver, gameOver);
+  } else {
+    // 스테이지 클리어시 자신감 20, 기분 2 회복
+    player.confidence += 20;
+    player.mood += 2;
   }
 };

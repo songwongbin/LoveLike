@@ -54,8 +54,7 @@ function handleUserInput() {
   switch (choice) {
     case "1":
       console.log(chalk.green("게임을 시작합니다."));
-      // 여기에서 새로운 게임 시작 로직을 구현
-      eventScene(texts.openingTexts);
+      eventScene(texts.openingTexts, 500, startGame, start);
       break;
     case "2":
       console.log(chalk.yellow("구현 준비중입니다.. 게임을 시작하세요"));
@@ -79,7 +78,7 @@ function handleUserInput() {
 }
 
 // 게임 시작 함수
-function start() {
+export function start() {
   displayLobby();
   handleUserInput();
 }
