@@ -94,7 +94,7 @@ export const gameOver = async function () {
   );
   console.log(chalk.magentaBright("=".repeat(50)));
   console.log("\n[1. 재시작] [2. 게임 종료]");
-
+  // 재시작 또는 게임 종료 선택
   const RestartOrQuit = () => {
     while (true) {
       const restart_or_quit = readlineSync.question(`\n입력 : `);
@@ -107,7 +107,6 @@ export const gameOver = async function () {
       console.log(chalk.red("1,2만 입력 가능합니다"));
     }
   };
-
   RestartOrQuit();
 };
 
