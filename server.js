@@ -54,7 +54,8 @@ function handleUserInput() {
   switch (choice) {
     case "1":
       console.log(chalk.green("게임을 시작합니다."));
-      eventScene(texts.openingTexts, 500, startGame, start);
+      // eventScene(texts.openingTexts, 500, startGame, start);
+      startGame();
       break;
     case "2":
       console.log(chalk.yellow("구현 준비중입니다.. 게임을 시작하세요"));

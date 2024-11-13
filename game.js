@@ -1,4 +1,5 @@
 import chalk from "chalk";
+import figlet from "figlet";
 import readlineSync from "readline-sync";
 import { start } from "./server.js";
 import { Player } from "./player.js";
@@ -67,21 +68,47 @@ export async function startGame() {
   console.clear();
   const me = new Player();
   let stage = 1;
+  await eventScene(texts.openingTexts, 500, funcEnd, start);
   while (stage <= 5) {
     const classmate = new Classmate(stage);
     await myRoomScene(stage, me, classmate);
     await eventScene(texts.goSchoolTexts, 500, funcEnd, funcEnd); // (추가할 것) 장면 전환 이벤트 텍스트
     await schoolScene(stage, me, classmate);
     await eventScene(texts.goHomeTexts, 500, funcEnd, start); // (추가할 것) 장면 전환 이벤트 텍스트
-    // (추가할 것)스테이지 클리어 및 게임 종료 조건
     stage++;
   }
 }
 
 /* 게임 오버 */
-export async function gameOver() {}
-
-/* 스테이지 클리어 */
+export const gameOver = async function () {
+  console.clear();
+  console.log(chalk.magentaBright("=".repeat(50)));
+  console.log(
+    chalk.redBright(
+      figlet.textSync("Game Over", {
+        font: "Slant",
+        horizontalLayout: "default",
+        verticalLayout: "default",
+      }),
+    ),
+  );
+  console.log(chalk.magentaBright("=".repeat(50)));
+  console.log("\n[1. 재시작] [2. 게임 종료]");
+  // 재시작 또는 게임 종료 선택
+  const RestartOrQuit = () => {
+    while (true) {
+      const restart_or_quit = readlineSync.question(`\n입력 : `);
+      if (restart_or_quit === "1") {
+        start();
+        break;
+      } else if (restart_or_quit === "2") {
+        process.exit(0);
+      }
+      console.log(chalk.red("1,2만 입력 가능합니다"));
+    }
+  };
+  RestartOrQuit();
+};
 
 /* 반복 간 시간차를 두기 위한 함수 */
 const wait = (ms) => {
