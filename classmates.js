@@ -8,6 +8,7 @@ export class Classmate {
     this.closeness = 60 - stage * 10; // 기본 친밀도 (스테이지 오를수록 낮아짐)
     this.isDate = false; // 연인 여부
     this.isIncrease = true; // 상호작용에 따른 친밀도 증감 여부
+    this.isFailConfess = false; // 고백 실패시 일정확률로 게임오버 만들기 위한 체크
   }
   talk() {
     this.isIncrease = true; // 친밀도 증감 여부 초기화
@@ -46,12 +47,16 @@ export class Classmate {
     let probConfess = Math.trunc(Math.random() * 100 + 1);
     // 5% 고백 성공, 95% 고백 실패 (친밀도 95 이상이면 고백 무조건 성공)
     if (probConfess <= 5 || this.closeness >= 95) {
-      this.closeness = 100;
-      this.isDate = true;
+      this.closeness = 100; // 자신감 최대로 회복하고
+      this.isDate = true; // 연인 속성 true
     } else {
       let probConfessFail = Math.trunc(Math.random() * 10 + 1);
-      // (추가할 것) 20%에 게임오버 함수 실행 
-      probConfessFail <= 8 ? (this.closeness -= 60) : this.closeness; // 고백실패시 80% 친밀도 -60, 20% 게임오버
+      // (추가할 것) 20%에 게임오버 함수 실행
+      if (probConfessFail <= 8) {
+        this.closeness -= 50; // 고백실패시 80% 친밀도 -50
+      } else {
+        this.isFailConfess = true;
+      } // 고백실패시 20% 게임오버
     }
   }
   escape() {
