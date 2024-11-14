@@ -19,7 +19,7 @@ export const printMyRoom = function () {
 };
 
 /* 김지우 */
-export const printJW = function () {
+export const print_01_JW = function () {
   console.log(`
     ⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⡴⣖⣿⣻⡿⣾⢿⣻⢶⢦⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
     ⠀⠀⠀⠀⠀⠀⠀⣰⣞⣯⢿⡽⣾⢯⣿⣻⣻⡯⣿⣻⣞⡷⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
@@ -45,7 +45,7 @@ export const printJW = function () {
 };
 
 /* 박유빈 */
-export const printYB = function () {
+export const print_02_YB = function () {
   console.log(`
  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⢦⡶⣶⣯⣿⣻⢯⣷⡳⡦⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣖⣟⡾⣽⢽⣟⣗⡷⣯⣻⢮⢿⢽⣳⣗⣦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
@@ -71,7 +71,7 @@ export const printYB = function () {
 };
 
 /* 송가을 */
-export const printGE = function () {
+export const print_03_GE = function () {
   console.log(`
 ⠀⠀⠀⠀⠀ ⢀⢠⣠⡀⡀ ⠀⢠⢰⢴⢵⣳⢯⣞⣮⣗⡯⣮⢦⡤⡀  ⠀⣀⡤⣀⠀
 ⠀⠀⠀⢀⢔⢞⣽⣳⡻⣆⢀⣼⣺⢽⡽⣽⣺⣻⢽⣳⣳⢯⣗⢿⣺⢽⢦⡀⡴⣗⡿⡽⣕⢆⠀⠀⠀⠀⠀⠀⠀
@@ -97,7 +97,7 @@ export const printGE = function () {
 };
 
 /* 이세원 */
-export const printSW = function () {
+export const print_04_SW = function () {
   console.log(`
      ⠀⠀⠀⠀⢀⢠⡢⡮⡶⣝⣗⣗⡯⣗⡧⣧⣢⣂⠄⡀⠀⢀⠀⠀⠀⠀
     ⠀⠀⡀⣡⣸⣪⢯⢿⡽⡯⣯⣻⢾⢽⣳⢯⣗⢷⣳⡫⡇⡎⢀⣄⣖⢦⣡⡠⣀⠀
@@ -123,7 +123,7 @@ export const printSW = function () {
 };
 
 /* 이규민 */
-export const printGM = function () {
+export const print_05_GM = function () {
   console.log(`
   ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⣴⣶⣾⣶⣾⣾⣾⣶⣦⣤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
   ⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣾⣿⣟⣯⣿⣯⣿⣿⣻⣿⣻⣿⣻⣿⣿⣦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀

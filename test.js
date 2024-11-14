@@ -32,3 +32,12 @@ export const eventScene = function (texts) {
     }
   };
 };
+
+import * as images from "./ASCII.js";
+
+let myImages = { ...images };
+delete myImages["printMyRoom"];
+console.log(myImages);
+myImages = Object.values(myImages);
+console.log(myImages);
+console.log(myImages[0]());
