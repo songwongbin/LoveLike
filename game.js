@@ -147,15 +147,30 @@ export const eventScene = async function (texts, printDelay, next, end) {
   NextOrEnd(next, end);
 };
 
+/* 장면전환 확인 */
+const cutaway = () => {
+  return new Promise(function (resolve) {
+    while (true) {
+      const pressAnyKey = readlineSync.question("1을 입력해 계속 : ");
+      if (pressAnyKey === "1") {
+        resolve();
+        break;
+      }
+      console.log(chalk.red("1만 입력 가능합니다"));
+    }
+  });
+};
+
 /* 내 방 장면 */
 const myRoomScene = async (stage, player) => {
   let trainingCount = 4; // 훈련 최대 횟수는 네 번
   let cmdMessage = ""; // 능력치 변동 알려줄 문자열
+  let isMoodZero = false; // 기분 저하 이벤트 발동 여부
   while (trainingCount > 0) {
     displayMyRoom(stage, player);
+    console.log(chalk.redBright(`\n${cmdMessage}`));
     console.log(chalk.green(`\n뭘 하며 시간을 보낼까? 남은 행동 포인트 : ${trainingCount}`));
     console.log(chalk.green(`1. 책 읽기 2. 운동하기 3. 게임하기`));
-    console.log(chalk.redBright(`\n${cmdMessage}`));
     // 플레이어의 선택에 따른 훈련 실행 및 결과 처리
     const doTraining = async function () {
       const choice = readlineSync.question("입력 : ");
@@ -182,10 +197,26 @@ const myRoomScene = async (stage, player) => {
     trainingCount--;
     // 도중에 기분이 0 이하가 될 경우 씬 강제 전환
     if (player.mood <= 0) {
-      await eventScene(texts.moodZeroTexts, 500, funcEnd, funcEnd); // 기분 스텟이 0이 되어 자버린다는 텍스트
-      player.mood = 1; // 기분을 1로 회복시켜줌
+      isMoodZero = true;
       break;
     }
+  }
+  /* 내방 씬 종료 */
+  if (isMoodZero) {
+    // 기분 저하 이벤트 발생 시
+    displayMyRoom(stage, player);
+    console.log(chalk.redBright(`\n${cmdMessage}`));
+    console.log(chalk.green(`\n하루 종일 게임도 못 하고 이게 뭐람...`));
+    console.log(chalk.green(`잠이나 자야겠다...`));
+    await cutaway();
+    await eventScene(texts.moodZeroTexts, 500, funcEnd, funcEnd); // 기분 스텟이 0이 되어 자버린다는 텍스트
+    player.mood = 1; // 기분을 1로 회복시켜줌
+  } else {
+    // 정상적으로 훈련 포인트 소모 시
+    displayMyRoom(stage, player);
+    console.log(chalk.redBright(`\n${cmdMessage}`));
+    console.log(chalk.green(`\n오늘은 이만하면 됐다! 이제 내일을 위해 자볼까?`));
+    await cutaway();
   }
 };
 
@@ -202,6 +233,13 @@ const schoolScene = async (stage, player, classmate) => {
   while (countBreakTime < 7) {
     // (추가할 것) 점심시간 이벤트
     if (countBreakTime === 4) {
+      displaySchool(stage, player, classmate, countBreakTime);
+      console.log(chalk.redBright(`\n${cmdMessage}`));
+      console.log(
+        chalk.green(`\n점심을 먹고 교실로 돌아오는데 ${classmate.name[stage - 1]}를(을) 만났다!`),
+      );
+      console.log(chalk.green(`어... 어쩌지?!`));
+      await cutaway();
       await eventScene(texts.lunchEventTexts, 500, confiUp, confiDown);
       // 점심시간 이벤트로 자신감이 0보다 작아지면 게임오버
       if (player.confidence <= 0) {
@@ -242,9 +280,6 @@ const schoolScene = async (stage, player, classmate) => {
             cmdMessage = `\n고백에 긍정적인 반응\n`;
           } else {
             cmdMessage = `\n고백에 부정적인 반응\n`;
-            if (classmate.isFailConfess) {
-              await eventScene(texts.gameOverTexts, 500, gameOver, gameOver); // 고백 실패시 20% 확률로 게임 오버
-            }
           }
           break;
         case "4":
@@ -261,22 +296,49 @@ const schoolScene = async (stage, player, classmate) => {
     };
     await playWithClassmate();
     countBreakTime++;
-    // (추가할 것) 고백 성공 시 연인 됐다는 이벤트 호출 후 스테이지 스킵
-    if (classmate.isDate) {
-      await eventScene(texts.dateTexts, 500, funcEnd, start);
+    // 고백 성공, 고백 대실패, 자신감 0, 친밀도 0인 경우 강제 화면 전환
+    if (
+      classmate.isDate ||
+      classmate.isFailConfess ||
+      player.confidence <= 0 ||
+      classmate.closeness <= 0
+    ) {
       break;
     }
-    // (추가할 것) 도중에 자신감 또는 친밀도가 0 이하가 될 경우 게임 오버
-    if (player.confidence <= 0 || classmate.closeness <= 0) {
-      await eventScene(texts.gameOverTexts, 500, gameOver, gameOver);
-    }
   }
-  // 교실 씬이 끝났는데 친밀도가 80 미만이면 게임 오버
-  if (classmate.closeness < 80) {
+  /* 교실 씬 종료 */
+  if (classmate.isDate) {
+    // 고백 성공 시 연인 이벤트 후 교실 씬 스킵
+    await eventScene(texts.successTexts, 500, funcEnd, start);
+  } else if (classmate.isFailConfess) {
+    // 고백 실패시 20% 확률로 게임 오버
+    await eventScene(texts.failTexts, 500, gameOver, gameOver);
+  } else if (player.confidence <= 0 || classmate.closeness <= 0) {
+    // 자신감 또는 친밀도가 0 이하면 게임 오버
+    displaySchool(stage, player, classmate, countBreakTime);
+    console.log(chalk.redBright(`\n${cmdMessage}`));
+    console.log(
+      chalk.green(`\n역시 ${classmate.name[stage - 1]} 같은 아이가 나를 좋아해줄리 없어...`),
+    );
+    console.log(chalk.green(`학교 더 이상 다니고 싶지 않아...`));
+    await cutaway();
+    await eventScene(texts.gameOverTexts, 500, gameOver, gameOver);
+  } else if (classmate.closeness < 80) {
+    // 교실 씬이 끝났는데 친밀도가 80 미만이면 게임 오버
+    displaySchool(stage, player, classmate, countBreakTime);
+    console.log(chalk.redBright(`\n${cmdMessage}`));
+    console.log(chalk.green(`\n${classmate.name[stage - 1]}와(과) 친해지는 데 실패했다...`));
+    console.log(chalk.green(`학교 더 이상 다니고 싶지 않아...`));
+    await cutaway();
     await eventScene(texts.gameOverTexts, 500, gameOver, gameOver);
   } else {
     // 스테이지 클리어시 자신감 20, 기분 2 회복
     player.confidence += 20;
     player.mood += 2;
+    displaySchool(stage, player, classmate, countBreakTime);
+    console.log(chalk.redBright(`\n${cmdMessage}`));
+    console.log(chalk.green(`\n${classmate.name[stage - 1]}와(과) 친구가 됐다!!`));
+    console.log(chalk.green(`집에 가볼까~`));
+    await cutaway();
   }
 };
