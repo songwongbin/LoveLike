@@ -7,107 +7,14 @@ import { Classmate } from "./classmates.js";
 import * as images from "./ASCII.js";
 import * as texts from "./texts.js";
 
-/* 스테이터스 창 */
-const weekdays = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"];
-// 내 방 씬
-function displayMyRoom(stage, player) {
-  console.clear();
-  console.log(chalk.magentaBright(`\n=============== 현재 상태 ===============`));
-  console.log(
-    chalk.cyanBright(`| ${weekdays[stage - 1]} 밤 |\n`) +
-      chalk.blueBright(`| 나의 기분: ${player.mood} |\n`) +
-      chalk.blueBright(
-        `| 말솜씨: ${player.talkSkills} | 매력: ${player.charms} | 게임실력: ${player.gameSkills} |`,
-      ),
-  );
-  images.printMyRoom(); // 방 이미지
-  console.log(chalk.magentaBright(`=========================================\n`));
-}
-// 학교 씬
-function displaySchool(stage, player, classmate, countBreakTime) {
-  let isNoon = "오전";
-  countBreakTime >= 4 ? (isNoon = "오후") : isNoon;
-  console.clear();
-  console.log(chalk.magentaBright(`\n=============== 현재 상태 ===============`));
-  console.log(
-    chalk.cyanBright(`| ${weekdays[stage]} ${isNoon} ${countBreakTime}교시 쉬는 시간 |\n`) +
-      chalk.blueBright(`| 나의 자신감: ${player.confidence} |\n`) +
-      chalk.blueBright(
-        `| 말솜씨: ${player.talkSkills} | 매력: ${player.charms} | 게임실력: ${player.gameSkills} |\n`,
-      ) +
-      chalk.redBright(`| ${classmate.name[stage - 1]}의 현재 친밀도 : ${classmate.closeness} |\n`),
-  );
-  // 친구 이미지
-  switch (stage) {
-    case 1:
-      images.printJW();
-      break;
-    case 2:
-      images.printYB();
-      break;
-    case 3:
-      images.printGE();
-      break;
-    case 4:
-      images.printSW();
-      break;
-    case 5:
-      images.printGM();
-      break;
-  }
-  console.log(chalk.magentaBright(`=========================================\n`));
-}
+/* classmate 이미지 배열 */
+let mateImages = { ...images }; // 객체 복사본 만들고
+delete mateImages["printMyRoom"]; // 내 방 이미지는 제거
+mateImages = Object.values(mateImages); // 함수들만 담은 배열화
 
 // 이벤트씬 그냥 패스하기 위한 깡통 함수
 export const funcEnd = () => {
   return;
-};
-
-/* 게임 시작 */
-export async function startGame() {
-  console.clear();
-  const me = new Player();
-  let stage = 1;
-  await eventScene(texts.openingTexts, 500, funcEnd, start);
-  while (stage <= 5) {
-    const classmate = new Classmate(stage, me); // 플레이어의 스텟을 속성에 보관
-    await myRoomScene(stage, me, classmate);
-    await eventScene(texts.goSchoolTexts, 500, funcEnd, funcEnd); // (추가할 것) 장면 전환 이벤트 텍스트
-    await schoolScene(stage, me, classmate);
-    await eventScene(texts.goHomeTexts, 500, funcEnd, start); // (추가할 것) 장면 전환 이벤트 텍스트
-    stage++;
-  }
-}
-
-/* 게임 오버 */
-export const gameOver = async function () {
-  console.clear();
-  console.log(chalk.magentaBright("=".repeat(50)));
-  console.log(
-    chalk.redBright(
-      figlet.textSync("Game Over", {
-        font: "Slant",
-        horizontalLayout: "default",
-        verticalLayout: "default",
-      }),
-    ),
-  );
-  console.log(chalk.magentaBright("=".repeat(50)));
-  console.log("\n[1. 재시작] [2. 게임 종료]");
-  // 재시작 또는 게임 종료 선택
-  const RestartOrQuit = () => {
-    while (true) {
-      const restart_or_quit = readlineSync.question(`\n입력 : `);
-      if (restart_or_quit === "1") {
-        start();
-        break;
-      } else if (restart_or_quit === "2") {
-        process.exit(0);
-      }
-      console.log(chalk.red("1,2만 입력 가능합니다"));
-    }
-  };
-  RestartOrQuit();
 };
 
 /* 반복 간 시간차를 두기 위한 함수 */
@@ -116,6 +23,7 @@ const wait = (ms) => {
 };
 
 /* 이벤트 씬 */
+let isGameEnd = false; // 게임 오버나 히든 엔딩 발생 체크 위함
 export const eventScene = async function (texts, printDelay, next, end) {
   const eventText = [...texts];
   console.clear();
@@ -161,6 +69,155 @@ const cutaway = () => {
   });
 };
 
+/* 스테이터스 창 */
+const weekdays = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"];
+// 내 방 씬
+function displayMyRoom(stage, player) {
+  console.clear();
+  console.log(chalk.magentaBright(`\n=============== 현재 상태 ===============`));
+  console.log(
+    chalk.cyanBright(`| ${weekdays[stage - 1]} 밤 |\n`) +
+      chalk.blueBright(`| 나의 기분: ${player.mood} |\n`) +
+      chalk.blueBright(
+        `| 말솜씨: ${player.talkSkills} | 매력: ${player.charms} | 게임실력: ${player.gameSkills} |`,
+      ),
+  );
+  images.printMyRoom(); // 방 이미지
+  console.log(chalk.magentaBright(`=========================================\n`));
+}
+// 학교 씬
+function displaySchool(stage, player, classmate, countBreakTime) {
+  let isNoon = "오전";
+  countBreakTime >= 4 ? (isNoon = "오후") : isNoon;
+  console.clear();
+  console.log(chalk.magentaBright(`\n=============== 현재 상태 ===============`));
+  console.log(
+    chalk.cyanBright(`| ${weekdays[stage]} ${isNoon} ${countBreakTime}교시 쉬는 시간 |\n`) +
+      chalk.blueBright(`| 나의 자신감: ${player.confidence} |\n`) +
+      chalk.blueBright(
+        `| 말솜씨: ${player.talkSkills} | 매력: ${player.charms} | 게임실력: ${player.gameSkills} |\n`,
+      ) +
+      chalk.redBright(`| ${classmate.name[stage - 1]}의 현재 친밀도 : ${classmate.closeness} |\n`),
+  );
+  // 친구 이미지
+  mateImages[stage - 1]();
+  console.log(chalk.magentaBright(`=========================================\n`));
+}
+
+/* 대화창 (히든엔딩용) */
+// 내 방 씬
+async function simpleDisplayRoom(stage) {
+  console.clear();
+  console.log(chalk.magentaBright(`\n=============== 현재 상태 ===============`));
+  console.log(chalk.cyanBright(`| ${weekdays[stage - 1]} 밤 |`));
+  console.log(chalk.magentaBright(`=========================================\n`));
+  images.printMyRoom(); // 방 이미지
+  console.log(chalk.magentaBright(`\n=========================================\n`));
+}
+// 학교 씬
+async function simpleDisplaySchool() {
+  let idx = 0;
+  for (const imgs of mateImages) {
+    console.clear();
+    console.log(chalk.magentaBright(`\n=============== 현재 상태 ===============`));
+    console.log(chalk.cyanBright(`| 다음 날 학교 |`));
+    console.log(chalk.magentaBright(`=========================================\n`));
+    imgs();
+    console.log(chalk.magentaBright(`\n=========================================\n`));
+    console.log(texts.gameEndingTexts[idx++]);
+    await cutaway();
+  }
+}
+
+/* 게임 시작 */
+export async function startGame() {
+  console.clear();
+  const me = new Player();
+  let isHidden = false; // 히든 엔딩 여부 구분
+  isGameEnd = false; // 게임 중단 조건 초기화
+  let stage = 1;
+  await eventScene(texts.openingTexts, 500, funcEnd, start);
+  while (stage <= 5) {
+    const classmate = new Classmate(stage, me); // 플레이어의 스텟을 속성에 보관
+    await myRoomScene(stage, me, classmate);
+    if (isGameEnd) break; // 게임오버 또는 게임광엔딩 발동 시 스테이지 반복 탈출
+    await eventScene(texts.goSchoolTexts, 500, funcEnd, funcEnd); // (추가할 것) 장면 전환 이벤트 텍스트
+    if (isGameEnd) break;
+    await schoolScene(stage, me, classmate);
+    if (isGameEnd) break;
+    await eventScene(texts.goHomeTexts, 500, funcEnd, start); // (추가할 것) 장면 전환 이벤트 텍스트
+    if (isGameEnd) break;
+    stage++;
+  }
+}
+
+/* 게임 오버 */
+export const gameOver = async function () {
+  console.clear();
+  console.log(chalk.magentaBright("=".repeat(50)));
+  console.log(
+    chalk.redBright(
+      figlet.textSync("Game Over", {
+        font: "Slant",
+        horizontalLayout: "default",
+        verticalLayout: "default",
+      }),
+    ),
+  );
+  console.log(chalk.magentaBright("=".repeat(50)));
+  console.log("\n[1. 재시작] [2. 게임 종료]");
+  // 재시작 또는 게임 종료 선택
+  const RestartOrQuit = () => {
+    while (true) {
+      const restart_or_quit = readlineSync.question(`\n입력 : `);
+      if (restart_or_quit === "1") {
+        start();
+        break;
+      } else if (restart_or_quit === "2") {
+        process.exit(0);
+      }
+      console.log(chalk.red("1,2만 입력 가능합니다"));
+    }
+  };
+  RestartOrQuit();
+};
+
+/* 엔딩 */
+export const EndCard = async function () {
+  console.clear();
+  console.log(chalk.magentaBright("=".repeat(50)));
+  console.log(
+    chalk.blueBright(
+      figlet.textSync("The End", {
+        font: "Slant",
+        horizontalLayout: "default",
+        verticalLayout: "default",
+      }),
+    ),
+  );
+  console.log(chalk.magentaBright("=".repeat(50)));
+  console.log("\n[1. 재시작] [2. 게임 종료]");
+  // 재시작 또는 게임 종료 선택
+  const RestartOrQuit = () => {
+    while (true) {
+      const restart_or_quit = readlineSync.question(`\n입력 : `);
+      if (restart_or_quit === "1") {
+        start();
+        break;
+      } else if (restart_or_quit === "2") {
+        process.exit(0);
+      }
+      console.log(chalk.red("1,2만 입력 가능합니다"));
+    }
+  };
+  RestartOrQuit();
+};
+// 히든 엔딩 함수 - 게임광
+const gameEnding = async function () {
+  await simpleDisplaySchool();
+  await eventScene(texts.gameEventTexts, 300, EndCard, EndCard);
+};
+
 /* 내 방 장면 */
 const myRoomScene = async (stage, player) => {
   let trainingCount = 4; // 훈련 최대 횟수는 네 번
@@ -195,9 +252,11 @@ const myRoomScene = async (stage, player) => {
     };
     await doTraining();
     trainingCount--;
-    // 도중에 기분이 0 이하가 될 경우 씬 강제 전환
+    // 도중에 기분이 0 이하가 되거나 게임실력이 200 이상이 된 경우 씬 강제 전환
     if (player.mood <= 0) {
       isMoodZero = true;
+      break;
+    } else if (player.gameSkills >= 200) {
       break;
     }
   }
@@ -211,6 +270,14 @@ const myRoomScene = async (stage, player) => {
     await cutaway();
     await eventScene(texts.moodZeroTexts, 500, funcEnd, funcEnd); // 기분 스텟이 0이 되어 자버린다는 텍스트
     player.mood = 1; // 기분을 1로 회복시켜줌
+  } else if (player.gameSkills >= 200) {
+    // 게임 실력 스텟 200 달성 시 히든 엔딩 오픈
+    isGameEnd = true; // 스테이지 반복문 탈출 알려주기 위함
+    simpleDisplayRoom(stage);
+    console.log(chalk.green(`\n이렇게 게임만 해도 괜찮은 걸까?`));
+    console.log(chalk.green(`그래도 요 며칠 실력이 엄청 는 것 같다!`));
+    await cutaway();
+    await eventScene(texts.goSchoolTexts, 500, gameEnding, gameEnding); // 히든 엔딩으로 이동
   } else {
     // 정상적으로 훈련 포인트 소모 시
     displayMyRoom(stage, player);
@@ -243,6 +310,7 @@ const schoolScene = async (stage, player, classmate) => {
       await eventScene(texts.lunchEventTexts, 500, confiUp, confiDown);
       // 점심시간 이벤트로 자신감이 0보다 작아지면 게임오버
       if (player.confidence <= 0) {
+        isGameEnd = true; // 스테이지 반복문 탈출 알려주기 위함
         await eventScene(texts.gameOverTexts, 500, gameOver, gameOver);
       }
     }
@@ -312,9 +380,11 @@ const schoolScene = async (stage, player, classmate) => {
     await eventScene(texts.successTexts, 500, funcEnd, start);
   } else if (classmate.isFailConfess) {
     // 고백 실패시 20% 확률로 게임 오버
+    isGameEnd = true; // 스테이지 반복문 탈출 알려주기 위함
     await eventScene(texts.failTexts, 500, gameOver, gameOver);
   } else if (player.confidence <= 0 || classmate.closeness <= 0) {
     // 자신감 또는 친밀도가 0 이하면 게임 오버
+    isGameEnd = true; // 스테이지 반복문 탈출 알려주기 위함
     displaySchool(stage, player, classmate, countBreakTime);
     console.log(chalk.redBright(`\n${cmdMessage}`));
     console.log(
@@ -325,6 +395,7 @@ const schoolScene = async (stage, player, classmate) => {
     await eventScene(texts.gameOverTexts, 500, gameOver, gameOver);
   } else if (classmate.closeness < 80) {
     // 교실 씬이 끝났는데 친밀도가 80 미만이면 게임 오버
+    isGameEnd = true; // 스테이지 반복문 탈출 알려주기 위함
     displaySchool(stage, player, classmate, countBreakTime);
     console.log(chalk.redBright(`\n${cmdMessage}`));
     console.log(chalk.green(`\n${classmate.name[stage - 1]}와(과) 친해지는 데 실패했다...`));
