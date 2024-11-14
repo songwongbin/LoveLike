@@ -48,12 +48,12 @@ export class Classmate {
         // 화제로 게임 선택
         if (this.stage === 4) {
           num = 7; // 세원은 은밀하게 게임을 좋아해서 크게 증가
+          this.closeness += Math.trunc(num * (1 + this.player.talkSkills / 100));
         } else {
           num = -5; // 나머지는 게임에 별 관심 없어서 감소
+          this.closeness += Math.trunc(num * (1 - this.player.talkSkills / 100));
           this.isIncrease = false;
         }
-        // 캐릭별 특징과 플레이어의 스텟을 반영한 친밀도 증감
-        this.closeness += Math.trunc(num * (1 - this.player.talkSkills / 100));
         break;
       default:
         console.log(chalk.red("1,2,3만 입력 가능합니다"));
