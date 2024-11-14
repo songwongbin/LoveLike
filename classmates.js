@@ -29,7 +29,7 @@ export class Classmate {
           num = 5; // 유빈은 아무 생각 없어서 기본 증가
         }
         // 캐릭별 특징과 플레이어의 스텟을 반영한 친밀도 증감
-        this.closeness += Math.round(num * (1 + this.player.talkSkills / 100));
+        this.closeness += Math.trunc(num * (1 + this.player.talkSkills / 100));
         break;
       case "2":
         // 화제로 상대방 선택
@@ -42,7 +42,7 @@ export class Classmate {
           num = 5; // 지유는 뭔들 좋아서, 유빈은 아무 생각 없어서 기본 증가
         }
         // 캐릭별 특징과 플레이어의 스텟을 반영한 친밀도 증감
-        this.closeness += Math.round(num * (1 + this.player.talkSkills / 100));
+        this.closeness += Math.trunc(num * (1 + this.player.talkSkills / 100));
         break;
       case "3":
         // 화제로 게임 선택
@@ -53,7 +53,7 @@ export class Classmate {
           this.isIncrease = false;
         }
         // 캐릭별 특징과 플레이어의 스텟을 반영한 친밀도 증감
-        this.closeness += Math.round(num * (1 - this.player.talkSkills / 100));
+        this.closeness += Math.trunc(num * (1 - this.player.talkSkills / 100));
         break;
       default:
         console.log(chalk.red("1,2,3만 입력 가능합니다"));
@@ -65,11 +65,27 @@ export class Classmate {
     this.isIncrease = true; // 친밀도 증감 여부 초기화
     let probJoke = Math.trunc(Math.random() * 10 + 1);
     // 50% 장난 성공, 50% 장난 실패
-    if (probJoke <= 5) {
-      this.closeness += 15;
-    } else {
-      this.closeness -= 15;
-      this.isIncrease = false;
+    switch (this.stage) {
+      case 3: // 가을은 장난 좋아해서 친밀도 더 오르고 덜 내려감
+        if (probJoke <= 5) {
+          this.closeness += Math.trunc(20 * (1 + this.player.charms / 100));
+        } else {
+          this.closeness += Math.trunc(-10 * (1 - this.player.charms / 100));
+          this.isIncrease = false;
+        }
+        break;
+      case 4: // 세원은 장난 싫어해서 무조건 내려감
+        this.closeness += Math.trunc(-15 * (1 - this.player.charms / 100));
+        this.isIncrease = false;
+        break;
+      default: // 나머지는 기본 변동
+        if (probJoke <= 5) {
+          this.closeness += Math.trunc(15 * (1 + this.player.charms / 100));
+        } else {
+          this.closeness += Math.trunc(-15 * (1 - this.player.charms / 100));
+          this.isIncrease = false;
+        }
+        break;
     }
   }
   confess() {
