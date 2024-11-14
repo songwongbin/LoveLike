@@ -70,7 +70,7 @@ export async function startGame() {
   let stage = 1;
   await eventScene(texts.openingTexts, 500, funcEnd, start);
   while (stage <= 5) {
-    const classmate = new Classmate(stage);
+    const classmate = new Classmate(stage, me); // 플레이어의 스텟을 속성에 보관
     await myRoomScene(stage, me, classmate);
     await eventScene(texts.goSchoolTexts, 500, funcEnd, funcEnd); // (추가할 것) 장면 전환 이벤트 텍스트
     await schoolScene(stage, me, classmate);
@@ -148,7 +148,7 @@ export const eventScene = async function (texts, printDelay, next, end) {
 };
 
 /* 내 방 장면 */
-const myRoomScene = async (stage, player, classmate) => {
+const myRoomScene = async (stage, player) => {
   let trainingCount = 4; // 훈련 최대 횟수는 네 번
   let cmdMessage = ""; // 능력치 변동 알려줄 문자열
   while (trainingCount > 0) {
