@@ -149,3 +149,82 @@ export const selectEndingTexts = [
   "최종선택 엔딩 출력 테스트4",
   `\n[1과 2중 아무 키나 누르세요.]`,
 ];
+
+/* 장면 대사들 */
+export const endMyRoomLine = ["오늘은 이만하면 됐다! 이제 내일을 위해 자볼까?\n"];
+
+export const moodZeroLine = ["하루 종일 게임도 못 하고 이게 뭐람...", "잠이나 자야겠다...\n"];
+
+export const gameEndingLine = ["이렇게 게임만 해도 괜찮은 걸까?", "그래도 요 며칠 실력이 엄청 는 것 같다!\n"];
+
+export const lunchEventLine = ["점심을 먹고 돌아오는 길에 또 마주쳐버렸다!!", "어... 어쩌지???\n"];
+
+export const endClassroomLine = ["와! 내가 친구가 생겼다니!!", "집에 가볼까~!\n"];
+
+export const confiZeroLine = ["역시 나 같은 걸 좋아해줄 리가 없지...", "학교 더 이상 다니고 싶지 않아...\n"];
+
+export const lowClosenessLine = ["친구 만드는 게 이렇게 어려운 일일까...", "학교 더 이상 다니고 싶지 않아...\n"];
+
+export const talkGoodReation = [
+  "대화 우호적 반응 - 지우",
+  "대화 우호적 반응 - 유빈",
+  "대화 우호적 반응 - 가을",
+  "대화 우호적 반응 - 세원",
+  "대화 우호적 반응 - 규민",
+];
+
+export const talkBadReation = [
+  "대화 적대적 반응 - 지우",
+  "대화 적대적 반응 - 유빈",
+  "대화 적대적 반응 - 가을",
+  "대화 적대적 반응 - 세원",
+  "대화 적대적 반응 - 규민",
+];
+
+export const jokeGoodReation = [
+  "장난 우호적 반응 - 지우",
+  "장난 우호적 반응 - 유빈",
+  "장난 우호적 반응 - 가을",
+  "장난 우호적 반응 - 세원",
+  "장난 우호적 반응 - 규민",
+];
+
+export const jokeBadReation = [
+  "장난 적대적 반응 - 지우",
+  "장난 적대적 반응 - 유빈",
+  "장난 적대적 반응 - 가을",
+  "장난 적대적 반응 - 세원",
+  "장난 적대적 반응 - 규민",
+];
+
+export const confessGoodReation = [
+  "고백 우호적 반응 - 지우",
+  "고백 우호적 반응 - 유빈",
+  "고백 우호적 반응 - 가을",
+  "고백 우호적 반응 - 세원",
+  "고백 우호적 반응 - 규민",
+];
+
+export const confessBadReation = [
+  "고백 적대적 반응 - 지우",
+  "고백 적대적 반응 - 유빈",
+  "고백 적대적 반응 - 가을",
+  "고백 적대적 반응 - 세원",
+  "고백 적대적 반응 - 규민",
+];
+
+export const escapeGoodReation = [
+  "도망 우호적 반응 - 지우",
+  "도망 우호적 반응 - 유빈",
+  "도망 우호적 반응 - 가을",
+  "도망 우호적 반응 - 세원",
+  "도망 우호적 반응 - 규민",
+];
+
+export const escapeBadReation = [
+  "도망 적대적 반응 - 지우",
+  "도망 적대적 반응 - 유빈",
+  "도망 적대적 반응 - 가을",
+  "도망 적대적 반응 - 세원",
+  "도망 적대적 반응 - 규민",
+];

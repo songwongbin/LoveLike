@@ -1,8 +1,7 @@
 import chalk from "chalk";
 import figlet from "figlet";
 import readlineSync from "readline-sync";
-import { startGame, eventScene } from "./game.js";
-import * as texts from "./texts.js";
+import { startGame } from "./game.js";
 
 // 로비 화면을 출력하는 함수
 function displayLobby() {
@@ -54,7 +53,6 @@ function handleUserInput() {
   switch (choice) {
     case "1":
       console.log(chalk.green("게임을 시작합니다."));
-      // eventScene(texts.openingTexts, 500, startGame, start);
       startGame();
       break;
     case "2":
