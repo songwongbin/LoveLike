@@ -40,13 +40,13 @@ const wait = (ms) => {
 /* 입력 대기 함수 */
 export const inputWaiting = (funcA, funcB, argA, argB) => {
   while (true) {
-    const inputValue = readlineSync.question(`\n입력 : `);
+    const inputValue = readlineSync.question(`입력 : `);
     if (inputValue === "1") {
       funcA(argA);
-      break;
+      return;
     } else if (inputValue === "2") {
       funcB(argB);
-      break;
+      return;
     }
     console.log(chalk.red("1,2만 입력 가능합니다"));
   }
@@ -62,7 +62,7 @@ export const eventScene = async function (textsArr, printDelay, funcA, funcB, ar
     console.log(txt);
     await wait(printDelay); // 시간차 부여
   }
-  console.log(chalk.green(`\n============${eventText[0]}============`));
+  console.log(chalk.green(`\n============${eventText[0]}============\n`));
   // 분기 선택
   inputWaiting(funcA, funcB, argA, argB);
 };

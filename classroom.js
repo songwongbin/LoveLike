@@ -5,7 +5,7 @@ import { weekdays, sceneLines, isOver } from "./game.js";
 import { cutaway } from "./func.js";
 
 /* classmate 이미지 배열 */
-let mateImages = { ...images }; // 객체 복사본 만들고
+export let mateImages = { ...images }; // 객체 복사본 만들고
 delete mateImages["printMyRoom"]; // 내 방 이미지는 제거
 mateImages = Object.values(mateImages); // 함수들만 담은 배열화
 
@@ -28,15 +28,17 @@ export const displaySchool = function (stage, player, classmate, period) {
 };
 
 /* 히든엔딩 씬 UI */
-export const displayForEnding = async function (arr, textsArr) {
+export const displayForEnding = async function (arr, textsArr, color) {
   for (const el of arr) {
     console.clear();
-    console.log(chalk.magentaBright(`\n=============== 현재 상태 ===============`));
-    console.log(chalk.cyanBright(`| 다음 날 |`));
     console.log(chalk.magentaBright(`=========================================\n`));
     mateImages[el]();
     console.log(chalk.magentaBright(`\n=========================================\n`));
-    console.log(textsArr[el]);
+    if (color === 0) {
+      console.log(chalk.cyanBright(textsArr[el] + "\n"));
+    } else if (color === 1) {
+      console.log(chalk.redBright(textsArr[el] + "\n"));
+    }
     await cutaway();
   }
 };
@@ -45,7 +47,12 @@ export const displayForEnding = async function (arr, textsArr) {
 export const whichBranch_school = async function (stage, player, classmate, countBreakTime, bool, textsArr) {
   // 장면 이미지 보여주고
   displaySchool(stage, player, classmate, countBreakTime);
-  console.log(chalk.redBright(`\n${sceneLines[0]}`));
+  // 상호작용에 긍정적 반응이면 파랑 글씨, 부정적 반응이면 빨강 글씨
+  if (classmate.isIncrease) {
+    console.log(chalk.cyanBright(`\n${sceneLines[0]}`));
+  } else {
+    console.log(chalk.redBright(`\n${sceneLines[0]}`));
+  }
   // 분기 변경을 위해 isOver 값을 조정
   isOver[0] = bool;
   for (let txt of textsArr) {

@@ -32,21 +32,18 @@ function displayLobby() {
   console.log(line);
 
   // 게임 이름
-  console.log(chalk.whiteBright.bold("취미라곤 게임 뿐인 내가 도내 최강 인기인?!\n"));
-
-  // 설명 텍스트
-  console.log(chalk.green("옵션을 선택해주세요."));
+  console.log(chalk.whiteBright.bold("\n취미라곤 게임 뿐인 내가 도내 최강 인기인?!\n"));
 
   // 옵션들
-  console.log(chalk.blue("1.") + chalk.white(" 새 게임 "));
-  console.log(chalk.blue("2.") + chalk.white(" 계속하기 "));
-  console.log(chalk.blue("3.") + chalk.white(" 나가기 "));
+  console.log(chalk.cyanBright("1.") + chalk.white(" 새 게임 "));
+  console.log(chalk.cyanBright("2.") + chalk.white(" 계속하기 "));
+  console.log(chalk.cyanBright("3.") + chalk.white(" 나가기 \n"));
 
   // 하단 경계선
   console.log(line);
 
   // 하단 설명
-  console.log(chalk.gray("1-3 사이의 수를 입력한 뒤 엔터를 누르세요."));
+  console.log(chalk.gray("1,2,3 중 하나를 입력하고 엔터를 누르세요."));
 }
 
 // 유저 입력을 받아 처리하는 함수
