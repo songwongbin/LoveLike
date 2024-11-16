@@ -11,10 +11,11 @@ import * as texts from "./texts.js";
 
 /* 변수 모음 */
 export const weekdays = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"]; // 요일 표현
-let isHidden = false; // 히든 엔딩 여부 구분
-let dates = []; // 연인된 사람 모아둘 배열 (인덱스 값으로)
-export let isOver = { 0: false }; // (isHidden과 병합 필요) 게임 오버나 히든 엔딩 발생 체크 위함
+export let isOver = { 0: false }; // 게임 오버나 게임광 엔딩 발생 체크 위함
 export let sceneLines = { 0: "" }; // 능력치 변동 또는 classmate 반응 알려줄 대사창
+let isKingka = false; // 인기쟁 엔딩 여부 구분
+let dates = []; // 연인된 사람 모아둘 배열 (인덱스 값으로)
+let dateMate = 0; // 최종선택 친구 인덱스값 담을 변수
 
 /* 게임 끝 타이틀 화면 */
 const gameOverTitle = chalk.redBright(
@@ -42,78 +43,77 @@ export const endScene = (title) => {
   inputWaiting(start, shutDown);
 };
 
-/* 히든 엔딩 함수 - 게임광 */
+/* 게임광 엔딩 */
 const gameEnding = async function () {
   await displayForEnding([0, 1, 2, 3, 4], texts.gameEndingTexts);
   await eventScene(texts.gameEventTexts, 300, endScene, endScene, endCardTitle, endCardTitle);
+};
+
+/* 최종선택 함수 */
+const select = () => {
+  return new Promise((resolve) => {
+    while (true) {
+      const dateWho = readlineSync.question(`\n입력 : `);
+      if (dates.includes(+dateWho - 1)) {
+        dateMate = +dateWho - 1;
+        resolve();
+        break;
+      }
+      console.log(chalk.red("고백에 성공한 친구만 선택 가능합니다"));
+    }
+  });
+};
+/* 인기쟁이 엔딩 */
+const kingkaEnding = async function () {
+  let select_texts = [...texts.selectTexts];
+  await eventScene(texts.dateEventTexts, 300, funcEnd, funcEnd); // 주말에 데이트하기로 했다는 이벤트씬
+  await displayForEnding(dates, texts.dateEndingTexts); // 연인 상태인 친구 둘이 각각 나와 의문을 표함
+  await eventScene(texts.dateEventTexts, 300, funcEnd, funcEnd); // 곤란해졌으며 최종 선택해야한다는 이벤트씬
+  console.clear();
+  console.log(chalk.green(`============${select_texts[0]}============\n`));
+  for (let txt of select_texts.slice(1)) {
+    console.log(txt);
+  }
+  console.log(chalk.green(`\n============${select_texts[0]}============`));
+  await select(); // 최종 선택
+  await displayForEnding([dateMate], texts.selectReactTexts); // 선택한 인물 최종 대사
+  await eventScene(texts.selectEndingTexts, 300, endScene, endScene, endCardTitle, endCardTitle);
 };
 
 /* 게임 시작 */
 export async function startGame() {
   console.clear();
   const me = new Player();
-  isHidden = false; // 히든 엔딩 여부 초기화
+  isKingka = false; // 인기쟁 엔딩 여부 초기화
   isOver[0] = false; // 게임 중단 조건 초기화
   dates = []; // 연인 명수 초기화
   let stage = 1;
   await eventScene(texts.openingTexts, 300, funcEnd, start);
 
   while (stage <= 5) {
-    const classmate = new Classmate(stage, me); // 플레이어의 스텟을 속성에 보관
+    const classmate = new Classmate(stage, me);
     await myRoomScene(stage, me);
     if (isOver[0]) break; // 게임오버 또는 게임광엔딩 발동 시 스테이지 반복 탈출
-    await eventScene(texts.goSchoolTexts, 300, funcEnd, funcEnd); // (추가할 것) 장면 전환 이벤트 텍스트
+    await eventScene(texts.goSchoolTexts, 300, funcEnd, funcEnd);
     if (isOver[0]) break;
     await schoolScene(stage, me, classmate);
     if (isOver[0]) break;
-    await eventScene(texts.goHomeTexts, 300, funcEnd, start); // (추가할 것) 장면 전환 이벤트 텍스트
+    await eventScene(texts.goHomeTexts, 300, funcEnd, start);
     if (isOver[0]) break;
     stage++;
   }
   if (isOver[0] === false) {
-    // 모든 스테이지 클리어 후 귀가 (금요일밤, isEnd는 참)
+    // 모든 스테이지 클리어 후 귀가 (금요일밤)
     displayMyRoom(6, me, true);
     console.log(chalk.green(`\n정신 없었지만 나름 즐거웠던 개학 첫 주였다!`));
     console.log(chalk.green(`앞으로의 학교 생활이 너무 기대돼!\n`));
     await cutaway();
-    isHidden = dates.length >= 2 ? true : false;
-    if (isHidden) {
-      // 연인이 둘 이상이고, 게임광 조건 달성 안 됐으면 인기쟁이 엔딩
-      await eventScene(texts.dateEventTexts, 300, funcEnd, funcEnd); // 주말에 데이트하기로 했다는 이벤트씬
-      await displayForEnding(dates, texts.dateEndingTexts); // 연인 상태인 친구 둘이 각각 나와 의문을 표함
-      await eventScene(texts.dateEventTexts, 300, funcEnd, funcEnd); // 곤란해졌으며 최종 선택해야한다는 이벤트씬
-      let dateMate = 0;
-      const select = () => {
-        return new Promise((resolve) => {
-          while (true) {
-            const dateWho = readlineSync.question(`\n입력 : `);
-            if (dates.includes(+dateWho - 1)) {
-              dateMate = +dateWho - 1;
-              resolve();
-              break;
-            }
-            console.log(chalk.red("고백에 성공한 친구만 선택 가능합니다"));
-          }
-        });
-      };
-      const finalText = [...texts.selectTexts];
-      console.clear();
-      let textIdx = 1;
-      console.log(chalk.green(`============${finalText[0]}============\n`));
-      // for문으로 텍스트를 하나씩 출력
-      for (; textIdx < finalText.length; textIdx++) {
-        console.log(finalText[textIdx]);
-        // 마지막 텍스트 나오면 구분선도 같이 출력
-        if (textIdx === finalText.length - 1) {
-          console.log(chalk.green(`\n============${finalText[0]}============`));
-        }
-      }
-      await select();
-      await displayForEnding([dateMate], texts.selectReactTexts);
-      await eventScene(texts.selectEndingTexts, 300, endScene, endScene, endCardTitle, endCardTitle);
+    // 노말 엔딩인지 인기쟁이 엔딩인지 확인
+    isKingka = dates.length >= 2 ? true : false;
+    if (isKingka) {
+      kingkaEnding(); // 연인이 둘 이상이고, 게임광 조건 달성 안 됐으면 인기쟁이 엔딩
     } else {
-      // 히든 엔딩 조건이 달성 안 된 경우 노말 엔딩
-      await eventScene(texts.normalEventTexts, 300, endScene, endScene, endCardTitle, endCardTitle);
+      await eventScene(texts.normalEventTexts, 300, endScene, endScene, endCardTitle, endCardTitle); // 노말 엔딩
     }
   }
 }

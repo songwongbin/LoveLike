@@ -10,13 +10,14 @@ delete mateImages["printMyRoom"]; // 내 방 이미지는 제거
 mateImages = Object.values(mateImages); // 함수들만 담은 배열화
 
 /* 교실 씬 UI */
-export const displaySchool = function (stage, player, classmate, countBreakTime) {
+export const displaySchool = function (stage, player, classmate, period) {
   let isNoon = "오전";
-  countBreakTime >= 4 ? (isNoon = "오후") : isNoon;
+  period = period < 6 ? period : 6;
+  period >= 4 ? (isNoon = "오후") : isNoon;
   console.clear();
   console.log(chalk.magentaBright(`\n=============== 현재 상태 ===============`));
   console.log(
-    chalk.cyanBright(`| ${weekdays[stage]} ${isNoon} ${countBreakTime}교시 쉬는 시간 |\n`) +
+    chalk.cyanBright(`| ${weekdays[stage]} ${isNoon} ${period}교시 쉬는 시간 |\n`) +
       chalk.blueBright(`| 나의 자신감: ${player.confidence} |\n`) +
       chalk.blueBright(`| 말솜씨: ${player.talkSkills} | 매력: ${player.charms} | 게임실력: ${player.gameSkills} |\n`) +
       chalk.redBright(`| ${classmate.name[stage - 1]}의 현재 친밀도 : ${classmate.closeness} |\n`),
