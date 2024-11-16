@@ -5,6 +5,7 @@ export class Player {
     this.talkSkills = 10; // 말솜씨, 스텟에 비례해 대화 효과 강화
     this.charms = 10; // 매력, 스텟에 비례해 장난 효과 강화
     this.gameSkills = 10; // 게임실력
+    this.encounterResult = true; // 점심 이벤트 선택지 구분
   }
   // 책읽기 : 기분 소모 / 말솜씨 UP, 매력 up, 게임스킬 down
   readBooks() {
@@ -31,5 +32,6 @@ export class Player {
   lunchEvent(isplus) {
     let num = isplus ? 1 : -1;
     this.confidence += 20 * num;
+    this.encounterResult = num === 1 ? true : false;
   }
 }

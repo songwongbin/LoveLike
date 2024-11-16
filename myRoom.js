@@ -12,14 +12,14 @@ const showMyStatus = (player) => {
 /* 내방 씬 UI */
 export const displayMyRoom = function (stage, player, isEnd) {
   console.clear();
-  console.log(chalk.magentaBright(`\n=============== 현재 상태 ===============`));
-  console.log(chalk.cyanBright(`| ${weekdays[stage - 1]} 밤 |\n`));
+  console.log(chalk.magentaBright(`\n=============== < 현재 상태 > ===============`));
+  console.log(chalk.cyanBright(`| ${weekdays[stage - 1]} 밤 |`));
   if (isEnd === false) {
     showMyStatus(player);
   }
-  console.log(chalk.magentaBright(`=========================================\n`));
+  console.log(chalk.magentaBright(`=============== < 현재 상태 > ===============\n`));
   images.printMyRoom(); // 방 이미지
-  console.log(chalk.magentaBright(`=========================================`));
+  console.log(chalk.magentaBright(`=============================================`));
 };
 
 /* 내방 분기 구분 함수 */
