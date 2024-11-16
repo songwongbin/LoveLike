@@ -1,5 +1,6 @@
 import chalk from "chalk";
 import readlineSync from "readline-sync";
+import { isFailConfess } from "./game.js";
 
 export class Classmate {
   constructor(stage, player) {
@@ -105,7 +106,7 @@ export class Classmate {
         this.closeness -= 50; // 고백실패시 80% 친밀도 -50
         this.player.confidence -= 30; // 플레이어 자신감 -30
       } else {
-        this.isFailConfess = true; // 고백실패시 20% 게임오버
+        isFailConfess[0] = true; // 고백실패시 20% 게임오버
       }
     }
   }
