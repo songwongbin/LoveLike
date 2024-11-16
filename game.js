@@ -4,7 +4,7 @@ import readlineSync from "readline-sync";
 import { start } from "./server.js";
 import { Player } from "./player.js";
 import { Classmate } from "./classmates.js";
-import { funcEnd, shutDown, cutaway, inputWaiting, eventScene } from "./func.js";
+import { funcEnd, shutDown, cutaway, inputWaiting, eventScene, goLobby } from "./func.js";
 import { displayMyRoom, whichBranch_myRoom, doTraining } from "./myRoom.js";
 import { displaySchool, displayForEnding, whichBranch_school, interactClassmate } from "./classroom.js";
 import * as texts from "./texts.js";
@@ -14,6 +14,7 @@ export const weekdays = ["일요일", "월요일", "화요일", "수요일", "�
 export let isOver = { 0: false }; // 게임 오버나 게임광 엔딩 발생 체크 위함
 export let sceneLines = { 0: "" }; // 능력치 변동 또는 classmate 반응 알려줄 대사창
 export let isFailConfess = { 0: false }; // 고백 실패 엔딩 체크
+export let isLobby = { 0: false }; // 로비로 가는지 여부 구분
 let isKingka = false; // 인기쟁 엔딩 여부 구분
 let dates = []; // 연인된 사람 모아둘 배열 (인덱스 값으로)
 let dateMate = 0; // 최종선택 친구 인덱스값 담을 변수
@@ -86,12 +87,13 @@ const kingkaEnding = async function () {
 export async function startGame() {
   console.clear();
   const me = new Player();
+  isLobby[0] = false; // 로비 가는지 여부 초기화
   isKingka = false; // 인기쟁 엔딩 여부 초기화
   isOver[0] = false; // 게임 중단 조건 초기화
   dates = []; // 연인 명수 초기화
   isFailConfess[0] = false; // 고백 실패 엔딩 여부 초기화
   let stage = 1;
-  await eventScene(texts.openingTexts, 300, funcEnd, start);
+  await eventScene(texts.openingTexts, 300, funcEnd, goLobby);
 
   while (stage <= 5) {
     if (isOver[0]) break;
@@ -102,13 +104,16 @@ export async function startGame() {
     if (isOver[0]) break;
     await schoolScene(stage, me, classmate);
     if (isOver[0]) break;
-    await eventScene(texts.goHomeTexts, 300, funcEnd, start);
+    await eventScene(texts.goHomeTexts, 300, funcEnd, goLobby);
     if (isOver[0]) break;
     stage++;
   }
 
   if (isOver[0]) {
-    if (me.gameSkills >= 100) {
+    if (isLobby[0]) {
+      start(); // 로비로 감
+      return;
+    } else if (me.gameSkills >= 100) {
       gameEnding(); // 게임광 엔딩이면 게임광 엔딩 실행
       return;
     } else {

@@ -1,48 +1,46 @@
 /* 함수 기능 테스트 해보는 곳 */
-async function longRunningTask(signal) {
+//#region Json 파일관리
+//#region 파일 정보 가져오기
+import fsp from "fs/promises"; // fs/promises에서 fs를 가져옵니다.
+import fs from "fs"; // fs 모듈을 가져옵니다.
+// JSON 파일을 로드하는 함수
+async function loadJson(filePath) {
   try {
-    for (let i = 0; i < 10; i++) {
-      // 1. signal.aborted가 true면 작업을 중단
-      if (signal.aborted) {
-        console.log("작업이 취소되었습니다.");
-        return; // 함수 종료
-      }
-
-      console.log(`작업 ${i + 1} 진행 중...`);
-      // 2. 1초마다 대기
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // 1초마다 대기
-    }
-  } catch (error) {
-    if (error.name === "AbortError") {
-      console.log("작업 중단");
-    }
+    const data = await fsp.readFile(filePath, "utf8");
+    const jsonData = JSON.parse(data);
+    // 데이터 사용
+    //console.log(jsonData);
+    //console.log(`ShopText: ${jsonData.ShopText[0]}`);
+    return jsonData;
+  } catch (err) {
+    console.error("파일 읽기 오류:", err);
   }
 }
-
-async function startTask() {
-  const controller = new AbortController(); // AbortController 생성
-  const signal = controller.signal; // signal은 중단 신호를 의미
-
-  // 비동기 작업 실행
-  const task = longRunningTask(signal);
-
-  // 3. 5초 후에 작업을 취소 (abort 호출)
-  setTimeout(() => controller.abort(), 5000);
-
-  // 작업이 끝날 때까지 기다리기
-  await task;
+// JSON 파일을 저장하는 함수
+function saveJson(filePath, jsonData) {
+  // JSON 객체를 문자열로 변환
+  const jsonString = JSON.stringify(jsonData, null, 2); // 가독성을 위해 들여쓰기 추가
+  try {
+    // 파일에 쓰기
+    fs.writeFileSync(filePath, jsonString);
+    console.log(`${filePath} 파일이 저장되었습니다.`);
+  } catch (err) {
+    console.error("파일 쓰기 오류:", err);
+  }
 }
-
-startTask();
-
-const checkIsOVer = () => {
-  if (isOver[0]) return;
+/* 사용 예시
+const jsonFilePath = 'TextTable.json'; // 로드할 JSON 파일 경로
+const saveFilePath = 'data.json'; // 저장할 JSON 파일 경로
+// JSON 로드
+loadJson(jsonFilePath);
+// JSON 데이터 예시 (저장할 데이터)
+const jsonDataToSave = {
+  name: "홍길동",
+  age: 30,
+  city: "서울",
 };
-
-const abortGame = () => {
-  return new Promise((resolve) => {
-    resolve();
-  });
-};
-
-abortGame.then(checkIsOVer);
+// JSON 저장
+saveJson(saveFilePath, jsonDataToSave);
+*/
+//#endregion
+//#endregion
