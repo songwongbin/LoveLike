@@ -5,7 +5,7 @@ export const openingTexts = [
   "오프닝 출력 테스트2",
   "오프닝 출력 테스트3",
   "오프닝 출력 테스트4",
-  `\n[1. 계속] [2. 로비로]`,
+  `\n[ 1. 계속 ] [ 2. 로비로 ]`,
 ];
 
 export const goSchoolTexts = [
@@ -23,7 +23,7 @@ export const goHomeTexts = [
   "하교 출력 테스트2",
   "하교 출력 테스트3",
   "하교 출력 테스트4",
-  `\n[1. 계속] [2. 로비로]`,
+  `\n[ 1. 계속 ] [ 2. 로비로 ]`,
 ];
 
 export const moodZeroTexts = [
