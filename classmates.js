@@ -98,7 +98,7 @@ export class Classmate {
     // 5% 고백 성공, 95% 고백 실패 (친밀도 95 이상이면 고백 무조건 성공)
     if (probConfess <= 5 || this.closeness >= 95) {
       this.closeness = 100; // 친밀도 최대로 회복하고
-      this.player.confidence += 100; // 플레이어 자신감 최대로 회복하고
+      this.player.confidence = 100; // 플레이어 자신감 최대로 회복하고
       this.isDate = true; // 연인 속성 true
     } else {
       let probConfessFail = Math.trunc(Math.random() * 10 + 1);
