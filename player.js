@@ -27,4 +27,9 @@ export class Player {
     this.charms -= 7;
     this.gameSkills += 20;
   }
+  // 점심 이벤트
+  lunchEvent(isplus) {
+    let num = isplus ? 1 : -1;
+    this.confidence += 20 * num;
+  }
 }

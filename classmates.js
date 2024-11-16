@@ -28,6 +28,7 @@ export class Classmate {
         } else {
           num = 5; // 유빈은 아무 생각 없어서 기본 증가
         }
+
         // 캐릭별 특징과 플레이어의 스텟을 반영한 친밀도 증감
         this.closeness += Math.trunc(num * (1 + this.player.talkSkills / 100));
         break;
@@ -41,7 +42,6 @@ export class Classmate {
         } else {
           num = 5; // 지유는 뭔들 좋아서, 유빈은 아무 생각 없어서 기본 증가
         }
-        // 캐릭별 특징과 플레이어의 스텟을 반영한 친밀도 증감
         this.closeness += Math.trunc(num * (1 + this.player.talkSkills / 100));
         break;
       case "3":
@@ -60,6 +60,8 @@ export class Classmate {
         this.talk();
         break;
     }
+    // 플레이어 자신감 감소
+    this.player.confidence -= 10;
   }
   joke() {
     this.isIncrease = true; // 친밀도 증감 여부 초기화
@@ -87,21 +89,24 @@ export class Classmate {
         }
         break;
     }
+    // 플레이어 자신감 감소
+    this.player.confidence -= 15;
   }
   confess() {
     let probConfess = Math.trunc(Math.random() * 100 + 1);
     // 5% 고백 성공, 95% 고백 실패 (친밀도 95 이상이면 고백 무조건 성공)
     if (probConfess <= 5 || this.closeness >= 95) {
-      this.closeness = 100; // 자신감 최대로 회복하고
+      this.closeness = 100; // 친밀도 최대로 회복하고
+      this.player.confidence += 100; // 플레이어 자신감 최대로 회복하고
       this.isDate = true; // 연인 속성 true
     } else {
       let probConfessFail = Math.trunc(Math.random() * 10 + 1);
-      // (추가할 것) 20%에 게임오버 함수 실행
       if (probConfessFail <= 8) {
         this.closeness -= 50; // 고백실패시 80% 친밀도 -50
+        this.player.confidence -= 30; // 플레이어 자신감 -30
       } else {
-        this.isFailConfess = true;
-      } // 고백실패시 20% 게임오버
+        this.isFailConfess = true; // 고백실패시 20% 게임오버
+      }
     }
   }
   escape() {
