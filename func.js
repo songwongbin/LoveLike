@@ -1,6 +1,6 @@
 import chalk from "chalk";
 import readlineSync from "readline-sync";
-import { isOver, isLobby } from "./game.js";
+import { isLobby } from "./game.js";
 
 /* 이벤트씬 그냥 패스하기 위한 깡통 함수 */
 export const funcEnd = () => {
@@ -9,7 +9,6 @@ export const funcEnd = () => {
 
 /* 로비로 기능 도와주는 깡통 함수 */
 export const goLobby = () => {
-  isOver[0] = true;
   isLobby[0] = true;
   return;
 };
