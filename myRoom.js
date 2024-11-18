@@ -2,13 +2,14 @@ import chalk from "chalk";
 import readlineSync from "readline-sync";
 import { weekdays, sceneLines, isOver } from "./game.js";
 import { cutaway } from "./func.js";
-import * as images from "./ASCII.js";
+import * as images from "./images.js";
 
-/* 내방 씬 스테이터스 */
+/* 내방 장면 스테이터스 */
 const showMyStatus = (player) => {
   console.log(chalk.blueBright(`| 나의 기분: ${player.mood} |`));
   console.log(chalk.blueBright(`| 말솜씨: ${player.talkSkills} | 매력: ${player.charms} | 게임실력: ${player.gameSkills} |`));
 };
+
 /* 내방 씬 UI */
 export const displayMyRoom = function (stage, player, isEnd) {
   console.clear();
@@ -22,11 +23,11 @@ export const displayMyRoom = function (stage, player, isEnd) {
   console.log(chalk.magentaBright(`=============================================`));
 };
 
-/* 내방 분기 구분 함수 */
+/* 내방 분기 구분 */
 export const whichBranch_myRoom = async function (stage, player, bool, textsArr) {
   // 장면 이미지 보여주고
   displayMyRoom(stage, player, bool);
-  // 인자로 받은 값이 false면 cmd메세지보여주고, true면 isOver 값을 바꿔 분기 변경
+  // 인자로 받은 값이 false면 훈련결과 보여주고, true면 isOver 값을 바꿔 분기 변경
   !bool ? console.log(chalk.redBright(`\n${sceneLines[0]}`)) : (isOver[0] = true);
   for (let txt of textsArr) {
     console.log(chalk.green(`${txt}`)); // 대사 출력
@@ -34,7 +35,7 @@ export const whichBranch_myRoom = async function (stage, player, bool, textsArr)
   await cutaway(); // 입력 대기
 };
 
-/* 훈련하기 함수 */
+/* 훈련하기 */
 export const doTraining = (player) => {
   return new Promise((resolve) => {
     const input_training = readlineSync.question("입력 : ");
