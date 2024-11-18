@@ -2,23 +2,23 @@ import chalk from "chalk";
 import readlineSync from "readline-sync";
 import { isLobby } from "./game.js";
 
-/* 이벤트씬 그냥 패스하기 위한 깡통 함수 */
+/* 이벤트씬 패스 위한 깡통 함수 */
 export const funcEnd = () => {
   return;
 };
 
-/* 로비로 기능 도와주는 깡통 함수 */
+/* 로비로 가기 위한 깡통 함수 */
 export const goLobby = () => {
   isLobby[0] = true;
   return;
 };
 
-/* 게임 종료 함수 */
+/* 게임 종료 */
 export const shutDown = () => {
   process.exit(0);
 };
 
-/* 장면전환 확인 */
+/* 장면전환 시 단순 입력대기 */
 export const cutaway = () => {
   return new Promise(function (resolve) {
     while (true) {
@@ -32,12 +32,12 @@ export const cutaway = () => {
   });
 };
 
-/* 반복 간 시간차를 두기 위한 함수 */
+/* 반복 간 시간차 */
 const wait = (ms) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
-/* 입력 대기 함수 */
+/* 분기 선택을 위한 입력 대기 */
 export const inputWaiting = (funcA, funcB, argA, argB) => {
   while (true) {
     const inputValue = readlineSync.question(`입력 : `);

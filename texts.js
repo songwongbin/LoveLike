@@ -36,7 +36,7 @@ export const goHomeTexts = [
   `\n[ 1. 계속 ] [ 2. 로비로 ]`,
 ];
 
-export const lunchEventTexts = [
+export const lunchTexts = [
   [
     "< 점심 시간!! >",
     '"오~ 우리 너무 자주 보는 거 같지 않아?"',
@@ -120,7 +120,7 @@ export const gameEndingTexts = [
   `\n[ 1과 2중 아무 키나 누르세요 ]`,
 ];
 
-export const normalEventTexts = [
+export const normalEndingTexts = [
   "< 게임 클리어 >",
   "개학 첫 주가 순식간에 지나가버렸어!",
   "친구가 다섯 명이나 생기다니,",
@@ -166,7 +166,7 @@ export const selectEndingTexts = [
   `\n[ 1과 2중 아무 키나 누르세요 ]`,
 ];
 
-/* 장면 대사들 */
+/* 장면별 대사들 */
 export const endMyRoomLine = ["오늘은 이만하면 됐다!", "이제 내일을 위해 자볼까?\n"];
 
 export const moodZeroLine = ["하루 종일 게임도 못 하고 이게 뭐람...", "기분이 안 좋아졌다...\n"];

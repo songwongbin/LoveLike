@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import figlet from "figlet";
 import readlineSync from "readline-sync";
-import { me, stage, start, dates } from "./server.js";
+import { me, stage, start, dates } from "./lobby.js";
 import { Classmate } from "./classmates.js";
 import { funcEnd, shutDown, cutaway, inputWaiting, eventScene, goLobby } from "./func.js";
 import { displayMyRoom, whichBranch_myRoom, doTraining } from "./myRoom.js";
@@ -10,30 +10,31 @@ import * as texts from "./texts.js";
 
 /* 변수 모음 */
 export const weekdays = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"]; // 요일 표현
-export let isOver = { 0: false }; // 게임 오버나 게임광 엔딩 발생 체크 위함
+export let isOver = { 0: false }; // startGame 중단 여부
 export let sceneLines = { 0: "" }; // 능력치 변동 또는 classmate 반응 알려줄 대사창
-export let isFailConfess = { 0: false }; // 고백 실패 엔딩 체크
-export let isLobby = { 0: false }; // 로비로 가는지 여부 구분
-let isKingka = false; // 인기쟁 엔딩 여부 구분
+export let isFailConfess = { 0: false }; // 고백 실패 엔딩 여부
+export let isLobby = { 0: false }; // 로비로 여부
+let isKingka = false; // 인기쟁 엔딩 여부
 let dateMate = 0; // 최종선택 친구 인덱스값 담을 변수
 
-/* 게임 끝 타이틀 화면 */
+/* 게임 종료 타이틀 */
+// 게임오버일때
 const gameOverTitle = chalk.redBright(
-  // 게임오버일때 띄울 타이틀
   figlet.textSync("Game Over", {
     font: "Slant",
     horizontalLayout: "default",
     verticalLayout: "default",
   }),
 );
+// 무사히 엔딩 봤을 때
 const endCardTitle = chalk.blueBright(
-  // 무사히 엔딩 봤을 때 띄울 타이틀
   figlet.textSync("The End", {
     font: "Slant",
     horizontalLayout: "default",
     verticalLayout: "default",
   }),
 );
+// 재시작 또는 게임종료 선택
 export const endScene = (title) => {
   console.clear();
   console.log(chalk.magentaBright("=".repeat(50)));
@@ -41,8 +42,9 @@ export const endScene = (title) => {
   console.log("\n[ 1. 재시작 ] [ 2. 게임 종료 ]");
   console.log(chalk.magentaBright("=".repeat(50)));
   console.log(chalk.gray("\n1 또는 2를 입력하고 엔터를 누르세요."));
-  isOver[0] = true; // 계속하기 못하게 게임 종료됐음 알려줌!
+  isOver[0] = true;
   inputWaiting(start, shutDown);
+  return;
 };
 
 /* 게임광 엔딩 */
@@ -51,9 +53,8 @@ const gameEnding = async function () {
   await displayForEnding([0, 1, 2, 3, 4], texts.gameEndingLines, 0);
   await eventScene(texts.gameEndingTexts, 300, endScene, endScene, endCardTitle, endCardTitle);
 };
-
-/* 최종선택 함수 */
-const select = () => {
+/* 최종선택 화면 */
+const selectScene = () => {
   return new Promise((resolve) => {
     while (true) {
       const dateWho = readlineSync.question(`\n입력 : `);
@@ -78,7 +79,7 @@ const kingkaEnding = async function () {
     console.log(txt);
   }
   console.log(chalk.green(`\n============${select_texts[0]}============`));
-  await select(); // 최종 선택
+  await selectScene(); // 최종 선택
   await displayForEnding([dateMate], texts.selectReactTexts, 0); // 선택한 인물 최종 대사
   await eventScene(texts.selectEndingTexts, 300, endScene, endScene, endCardTitle, endCardTitle);
 };
@@ -86,55 +87,63 @@ const kingkaEnding = async function () {
 /* 게임 시작 */
 export async function startGame() {
   console.clear();
-  isLobby[0] = false; // 로비 가는지 여부 초기화
-  isKingka = false; // 인기쟁 엔딩 여부 초기화
-  isFailConfess[0] = false; // 고백 실패 엔딩 여부 초기화
+  // 변수 초기화
+  isLobby[0] = false;
+  isKingka = false;
+  isFailConfess[0] = false;
+  // 새 게임일 때마다 오프닝
   if (stage[0] === 1) {
-    await eventScene(texts.openingTexts, 300, funcEnd, goLobby); // 새 게임이면 오프닝
+    await eventScene(texts.openingTexts, 300, funcEnd, goLobby);
   }
+  // 스테이지 진입 (게임오버, 엔딩조건 달성, 로비로 시 반복문 탈출)
   while (stage[0] <= 5) {
     if (isOver[0] || isLobby[0]) break;
     const classmate = new Classmate(stage[0], me[0]);
     await myRoomScene(stage[0], me[0]);
-    if (isOver[0]) break; // 게임오버 또는 게임광엔딩 발동 시 스테이지 반복 탈출
+    if (isOver[0]) break;
     await eventScene(texts.goSchoolTexts, 300, funcEnd, funcEnd);
     if (isOver[0]) break;
-    await schoolScene(stage[0], me[0], classmate);
+    await classroomScene(stage[0], me[0], classmate);
     if (isOver[0]) break;
-    stage[0] += 1; // 여기서 해줘야 로비로 갔을 때 스테이지가 유지됨
+    stage[0] += 1; // 계속하기 시 스테이지 유지 위한 위치
     await eventScene(texts.goHomeTexts, 300, funcEnd, goLobby);
     if (isOver[0] || isLobby[0]) break;
   }
-
+  // 로비로 이동
   if (isLobby[0]) {
-    start(); // 로비로 감
+    start();
     return;
   } else if (isOver[0]) {
+    // 게임광 엔딩
     if (me[0].gameSkills >= 100) {
-      gameEnding(); // 게임광 엔딩이면 게임광 엔딩 실행
+      gameEnding();
       return;
     } else {
+      // 고백 실패 엔딩
       if (isFailConfess[0]) {
-        await eventScene(texts.failTexts, 300, endScene, endScene, gameOverTitle, gameOverTitle); // 고백 실패면 고백실패 오버
+        await eventScene(texts.failTexts, 300, endScene, endScene, gameOverTitle, gameOverTitle);
         return;
       } else {
-        await eventScene(texts.gameOverTexts, 300, endScene, endScene, gameOverTitle, gameOverTitle); // 그냥 게임오버
+        // 게임 오버
+        await eventScene(texts.gameOverTexts, 300, endScene, endScene, gameOverTitle, gameOverTitle);
         return;
       }
     }
   } else {
-    // 모든 스테이지 클리어 후 귀가 (금요일밤)
+    // 노말엔딩 및 인기쟁 엔딩 공통 화면
     displayMyRoom(6, me[0], true);
     console.log(chalk.green(`\n정신 없었지만 나름 즐거웠던 개학 첫 주였다!`));
     console.log(chalk.green(`앞으로의 학교 생활이 너무 기대돼!\n`));
     await cutaway();
-    // 노말 엔딩인지 인기쟁이 엔딩인지 확인
+    // 엔딩 분기 확인
     isKingka = dates[0].length >= 2 ? true : false;
     if (isKingka) {
-      kingkaEnding(); // 연인이 둘 이상이고, 게임광 조건 달성 안 됐으면 인기쟁이 엔딩
+      // 인기쟁 엔딩
+      kingkaEnding();
       return;
     } else {
-      await eventScene(texts.normalEventTexts, 300, endScene, endScene, endCardTitle, endCardTitle); // 노말 엔딩
+      // 노말 엔딩
+      await eventScene(texts.normalEndingTexts, 300, endScene, endScene, endCardTitle, endCardTitle); // 노말 엔딩
       return;
     }
   }
@@ -142,9 +151,11 @@ export async function startGame() {
 
 /* 내 방 장면 */
 const myRoomScene = async (stage, player) => {
-  let trainingCount = 4; // 훈련 최대 횟수는 네 번
-  let isMoodZero = false; // 기분 저하 이벤트 발동 여부
-  sceneLines = { 0: "" }; // 대사창 초기화
+  // 변수 초기화
+  let trainingCount = 4;
+  let isMoodZero = false;
+  sceneLines = { 0: "" };
+  // 훈련 진입
   while (trainingCount > 0) {
     displayMyRoom(stage, player, false);
     console.log(chalk.redBright(`\n${sceneLines[0]}`));
@@ -153,7 +164,7 @@ const myRoomScene = async (stage, player) => {
     // 플레이어의 선택에 따른 훈련 실행 및 결과 처리
     await doTraining(player);
     trainingCount--;
-    // 도중에 기분이 0 이하가 되거나 게임실력이 200 이상이 된 경우 씬 강제 전환
+    // 기분 전부 소모하거나 게임광 엔딩 조건 달성시 반복문 탈출
     if (player.mood <= 0) {
       isMoodZero = true;
       break;
@@ -161,24 +172,29 @@ const myRoomScene = async (stage, player) => {
       break;
     }
   }
-  /* 내방 씬 종료 이후 */
+  /* 내방 장면 결과 분기 */
   if (isMoodZero) {
-    whichBranch_myRoom(stage, player, false, texts.moodZeroLine); // 기분저하 이벤트
+    // 기분 저하 이벤트
+    whichBranch_myRoom(stage, player, false, texts.moodZeroLine);
     await eventScene(texts.moodZeroTexts, 300, funcEnd, funcEnd);
-    player.mood += 1; // 다음 내 방 씬 스킵될 수 있으니 기분을 1 회복시켜줌
+    player.mood += 1; // 다음 내 방 씬 스킵 방지 위해 기분을 1 회복시켜줌
   } else if (player.gameSkills >= 100) {
-    whichBranch_myRoom(stage, player, true, texts.gameEndingLine); // 게임광 히든엔딩
+    // 게임광 엔딩 진입
+    whichBranch_myRoom(stage, player, true, texts.gameEndingLine);
   } else {
-    whichBranch_myRoom(stage, player, false, texts.endMyRoomLine); // 정상 진행
+    // 정상 진행
+    whichBranch_myRoom(stage, player, false, texts.endMyRoomLine);
   }
 };
 
 /* 교실 장면 */
-const schoolScene = async (stage, player, classmate) => {
-  let countBreakTime = 1; // 쉬는 시간은 여섯 번
-  sceneLines = { 0: texts.greetTexts[stage - 1] }; // 내 행동에 따른 친구의 반응 출력할 문자열
+const classroomScene = async (stage, player, classmate) => {
+  // 변수 초기화
+  let countBreakTime = 1;
+  sceneLines = { 0: texts.greetTexts[stage - 1] }; // 캐릭별 기본 대사
+  // 상호작용 진입
   while (countBreakTime < 7) {
-    // 고백 성공, 고백 대실패, 자신감 0, 친밀도 0인 경우 강제 화면 전환
+    // 고백 성공 또는 게임오버 조건 달성 시 반복문 탈출
     if (classmate.isDate) {
       classmate.isIncrease = true;
       break;
@@ -186,16 +202,16 @@ const schoolScene = async (stage, player, classmate) => {
       classmate.isIncrease = false;
       break;
     }
-    // 점심시간 이벤트, 선택에 따라 자신감이 20 증가하거나 감소함
+    // 점심시간 인카운터, 선택에 따라 자신감이 20 증감
     if (countBreakTime === 4) {
       whichBranch_school(stage, player, classmate, countBreakTime, false, texts.lunchEventLine);
-      await eventScene(texts.lunchEventTexts[stage - 1], 300, player.lunchEvent.bind(player), player.lunchEvent.bind(player), true, false);
+      await eventScene(texts.lunchTexts[stage - 1], 300, player.lunchEvent.bind(player), player.lunchEvent.bind(player), true, false);
       if (player.encounterResult) {
         await displayForEnding([stage - 1], texts.confiUpLines, 0);
       } else {
         await displayForEnding([stage - 1], texts.confiDownLines, 1);
       }
-      // 점심시간 이벤트로 자신감이 0보다 작아지면 강제 화면 전환
+      // 인카운터 결과로 게임오버 조건 달성 시 반복문 탈출
       if (player.confidence <= 0) break;
     }
     displaySchool(stage, player, classmate, countBreakTime);
@@ -211,15 +227,15 @@ const schoolScene = async (stage, player, classmate) => {
     await interactClassmate(stage, classmate, texts);
     countBreakTime++;
   }
-  /* 교실 씬 종료 */
+  /* 교실 장면 결과 분기 */
   if (classmate.isDate) {
-    // 고백 성공 시 연인 이벤트
+    // 고백 성공 시
     player.mood += 2;
     whichBranch_school(stage, player, classmate, countBreakTime, false, texts.successLine);
     dates[0].push(stage - 1); // dates 배열에 연인 된 사람 인덱스 값 넣음
     await eventScene(texts.successTexts, 300, funcEnd, start);
   } else if (isFailConfess[0]) {
-    // 고백 실패시 20% 확률로 게임 오버
+    // 고백 실패 시 20% 확률로 게임 오버
     whichBranch_school(stage, player, classmate, countBreakTime, true, texts.failLine);
   } else if (player.confidence <= 0 || classmate.closeness <= 0) {
     // 자신감 또는 친밀도가 0 이하면 게임 오버
@@ -228,7 +244,7 @@ const schoolScene = async (stage, player, classmate) => {
     // 교실 씬이 끝났는데 친밀도가 80 미만이면 게임 오버
     whichBranch_school(stage, player, classmate, countBreakTime, true, texts.lowClosenessLine);
   } else {
-    // 스테이지 클리어시 자신감 20, 기분 2 회복
+    // 스테이지 클리어시 자신감 30, 기분 2 회복
     player.confidence += 30;
     player.mood += 2;
     whichBranch_school(stage, player, classmate, countBreakTime, false, texts.endClassroomLine);
